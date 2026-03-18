@@ -220,7 +220,8 @@ async def get_similarity(
                 all_paths=ALL_PATHS,
                 scaler=SCALER,
                 k=k,
-                metric=metric
+                metric=metric,
+                pca_transformer=PCA_TRANSFORMER
             )
             os.remove(query_path)
             source = f"upload: {file.filename}"
@@ -238,7 +239,8 @@ async def get_similarity(
                 all_paths=ALL_PATHS,
                 scaler=SCALER,
                 k=k,
-                metric=metric
+                metric=metric,
+                pca_transformer=PCA_TRANSFORMER
             )
             source = f"database_id: {image_id}"
         else:

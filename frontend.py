@@ -119,28 +119,40 @@ def check_api_health():
         return False
 
 def upload_image(file_bytes, filename, model_type="rf"):
-    files = {"file": (filename, file_bytes, "image/jpeg")}
-    params = {"model": "rf" if "Random Forest" in model_type else "svm"}
-    response = requests.post(f"{DEFAULT_API_URL}/upload", files=files, params=params)
-    return response.json()
+    try:
+        files = {"file": (filename, file_bytes, "image/jpeg")}
+        params = {"model": "rf" if "Random Forest" in model_type else "svm"}
+        response = requests.post(f"{DEFAULT_API_URL}/upload", files=files, params=params, timeout=30)
+        return response.json()
+    except Exception as e:
+        return {"detail": f"Streamlit Connection Error: {str(e)}"}
 
 def get_similarity(image_id=None, file_bytes=None, filename=None, k=5, metric="cosine"):
-    params = {"k": k, "metric": metric}
-    if image_id:
-        params["image_id"] = image_id
-        response = requests.post(f"{DEFAULT_API_URL}/similarity", params=params)
-    elif file_bytes:
-        files = {"file": (filename, file_bytes, "image/jpeg")}
-        response = requests.post(f"{DEFAULT_API_URL}/similarity", files=files, params=params)
-    return response.json()
+    try:
+        params = {"k": k, "metric": metric}
+        if image_id:
+            params["image_id"] = image_id
+            response = requests.post(f"{DEFAULT_API_URL}/similarity", params=params, timeout=30)
+        elif file_bytes:
+            files = {"file": (filename, file_bytes, "image/jpeg")}
+            response = requests.post(f"{DEFAULT_API_URL}/similarity", files=files, params=params, timeout=30)
+        return response.json()
+    except Exception as e:
+        return {"detail": f"Streamlit Similarity Error: {str(e)}"}
 
 def get_analytics():
-    response = requests.get(f"{DEFAULT_API_URL}/analytics")
-    return response.json()
+    try:
+        response = requests.get(f"{DEFAULT_API_URL}/analytics", timeout=10)
+        return response.json()
+    except Exception as e:
+        return {"detail": str(e)}
 
 def get_image_history(limit=50):
-    response = requests.get(f"{DEFAULT_API_URL}/images", params={"limit": limit})
-    return response.json()
+    try:
+        response = requests.get(f"{DEFAULT_API_URL}/images", params={"limit": limit}, timeout=10)
+        return response.json()
+    except Exception as e:
+        return []
 
 # ---------------------------------------------------------------------------
 # Core UI Engine
@@ -183,7 +195,7 @@ def main():
             st.markdown("### 📤 Image Submission")
             uploaded_file = st.file_uploader("Drop satellite image here...", type=['jpg', 'jpeg', 'png'], label_visibility="collapsed")
             if uploaded_file:
-                st.image(uploaded_file, caption="Query Stream", use_container_width=True)
+                st.image(uploaded_file, caption="Query Stream", use_column_width=True)
                 
         if uploaded_file:
             file_bytes = uploaded_file.getvalue()
@@ -227,7 +239,7 @@ def main():
                         # Note: In a real cloud env, local image paths won't be accessible.
                         # For this demo, we assume the dataset is also available locally or served via another endpoint.
                         if os.path.exists(res['image_path']):
-                            st.image(res['image_path'], use_container_width=True)
+                            st.image(res['image_path'], use_column_width=True)
                         else:
                             st.warning("Image restricted")
                         
@@ -300,7 +312,7 @@ def main():
                 df_map['latitude'] = 45 + np.random.rand(len(df_map)) * 10
                 df_map['longitude'] = -5 + np.random.rand(len(df_map)) * 25
                 st.map(df_map)
-                st.dataframe(df_map[['image_id', 'class_label', 'latitude', 'longitude']], use_container_width=True)
+                st.dataframe(df_map[['image_id', 'class_label', 'latitude', 'longitude']], use_column_width=True)
             else:
                 st.warning("No images found in database to map.")
         except Exception as e:

@@ -91,7 +91,7 @@ def compute_similarity(query_vec, feature_matrix, metric='cosine'):
     return scores
 
 def find_top_k_similar(query_image_path, feature_matrix, all_paths, scaler,
-                        k=5, metric='cosine'):
+                        k=5, metric='cosine', pca_transformer=None):
     """
     Returns the Top-K most similar images from the indexed dataset for a given query image.
 
@@ -102,6 +102,7 @@ def find_top_k_similar(query_image_path, feature_matrix, all_paths, scaler,
         scaler: Fitted StandardScaler to normalize the extracted query features.
         k (int): Number of top similar images to return.
         metric (str): 'cosine' or 'euclidean'.
+        pca_transformer: Optional fitted PCA model to reduce query dimensions.
 
     Returns:
         list[dict]: Top-K results, each with 'path', 'score', and 'rank'.
@@ -112,9 +113,15 @@ def find_top_k_similar(query_image_path, feature_matrix, all_paths, scaler,
         raise ValueError(f"Could not extract features from: {query_image_path}")
 
     # 2. Normalize the query features using the training scaler to match the indexed scale
-    query_normalized = scaler.transform(raw_features.reshape(1, -1))[0]
+    query_normalized = scaler.transform(raw_features.reshape(1, -1))
 
-    # 3. Compute similarity scores against all indexed images (fully vectorized)
+    # 3. Apply PCA transformation if searching against a reduced index
+    if pca_transformer:
+        query_normalized = pca_transformer.transform(query_normalized)
+    
+    query_normalized = query_normalized[0]
+
+    # 4. Compute similarity scores against all indexed images (fully vectorized)
     scores = compute_similarity(query_normalized, feature_matrix, metric=metric)
 
     # 4. Find the Top-K indices using argpartition for efficiency on large datasets
