@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.DS_Store
+.env
+.streamlit/
+dataset/
+processed_dataset/
+features_output/
+uploads/
+models/svm_model.joblib
+*.db
+similarity_results.png
+sample_prediction.png
+tests/
