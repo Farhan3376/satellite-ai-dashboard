@@ -2,7 +2,7 @@ import os
 import numpy as np
 import cv2
 import matplotlib
-matplotlib.use('Agg')  # Use non-interactive backend for server/pipeline compatibility
+matplotlib.use('Agg')  
 import matplotlib.pyplot as plt
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 
@@ -13,8 +13,7 @@ except ImportError:
 
 # ---------------------------------------------------------------------------
 # Data Loading
-# ---------------------------------------------------------------------------
-
+# ---------------------------------------------------------
 def load_feature_index(features_dir, dataset_path):
     """
     Loads the precomputed feature matrix consolidated for search.
