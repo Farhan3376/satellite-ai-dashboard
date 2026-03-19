@@ -21,8 +21,13 @@ st.set_page_config(
 # ---------------------------------------------------------------------------
 # Configuration (Local vs Cloud)
 # ---------------------------------------------------------------------------
-# In production (Streamlit Cloud), set RENDER_API_URL in secrets/env
-DEFAULT_API_URL = os.getenv("API_URL", "http://localhost:8000")
+# In production (Streamlit Cloud), set API_URL in secrets
+API_URL_RAW = os.getenv("API_URL", "http://localhost:8000")
+
+# Normalize: Ensure protocol exists and no trailing slash
+if not API_URL_RAW.startswith("http"):
+    API_URL_RAW = "https://" + API_URL_RAW
+DEFAULT_API_URL = API_URL_RAW.rstrip("/")
 
 # ---------------------------------------------------------------------------
 # Styling
